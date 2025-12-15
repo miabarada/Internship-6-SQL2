@@ -1,3 +1,5 @@
+CREATE INDEX idx_teamattournament ON TeamAtTournament (FinalPosition);
+EXPLAIN ANALYZE
 SELECT Tournament.Name AS Name
      , Year
 	 , Place
@@ -7,6 +9,8 @@ SELECT Tournament.Name AS Name
   JOIN Team USING (TeamId)
  WHERE FinalPosition = 1;
 
+CREATE INDEX idx_tournamentNameYear ON Tournament(Name, Year);
+EXPLAIN ANALYZE
 SELECT Team.Name AS TeamName
      , Representative.Name || ' ' || Representative.Surname AS Representative
   FROM Team
@@ -16,6 +20,8 @@ SELECT Team.Name AS TeamName
  WHERE Tournament.Name = 'Super Bowl'
    AND Tournament.Year = 2009;
 
+CREATE INDEX idx_player ON Player(TeamId);
+EXPLAIN ANALYZE
 SELECT Name
      , Surname
 	 , DateOfBirth
@@ -23,6 +29,7 @@ SELECT Name
   FROM Player
  WHERE TeamId = 8;
 
+EXPLAIN ANALYZE
 SELECT DateAndStartTime
 	 , Team1.Name || ' : ' || Team2.Name AS Opponents
 	 , GameType.Name AS GameType
@@ -35,6 +42,9 @@ SELECT DateAndStartTime
  WHERE Tournament.Name = 'Super Bowl'
    AND Tournament.Year = 2009;
 
+CREATE INDEX idx_gameteam1 ON Game(Team1Id);
+CREATE INDEX idx_gameteam2 ON Game(Team2Id);
+EXPLAIN ANALYZE
 SELECT Tournament.Name
      , DateAndStartTime
 	 , Team1.Name || ' : ' || Team2.Name AS Opponents
@@ -48,6 +58,8 @@ SELECT Tournament.Name
  WHERE Team1Id = 8
     OR Team2Id = 8;
 
+CREATE INDEX idx_gameid ON GameEvent(GameId);
+EXPLAIN ANALYZE
 Select GameEventType.Name AS Name
 	 , Player.Name AS PlayerName
   FROM GameEvent
@@ -55,6 +67,8 @@ Select GameEventType.Name AS Name
   JOIN Player USING (PlayerId)
  WHERE GameId = 5;
 
+CREATE INDEX idx_gameeventtypeid ON GameEvent(GameEventTypeId);
+EXPLAIN ANALYZE
 SELECT Player.Name || ' ' || Player.Surname AS Player
 	 , PTeam.Name AS Team
      , Team1.Name || ':' || Team2.Name AS Game
@@ -71,6 +85,7 @@ SELECT Player.Name || ' ' || Player.Surname AS Player
 	OR GameEventTypeId = 4
 	OR GameEventTypeId = 5;
 
+EXPLAIN ANALYZE
 SELECT Player.Name || ' ' || Player.Surname AS Player
      , COUNT(GameEventId) AS NumberOfGoals
 	 , Team.Name AS Team
@@ -84,6 +99,7 @@ SELECT Player.Name || ' ' || Player.Surname AS Player
  WHERE GameEventTypeId = 1
  GROUP BY PlayerId, Player.Name, Player.Surname, Team.Name;
 
+EXPLAIN ANALYZE
 SELECT Team.Name AS Team
 	 , SUM(CASE 
 	 		WHEN Team1Id = TeamId THEN Team1Score - Team2Score
@@ -100,6 +116,8 @@ SELECT Team.Name AS Team
   GROUP BY Team.TeamId, Team.Name, TeamAtTournament.NumberOfPoints, TeamAtTournament.FinalPosition
   ORDER BY TeamAtTournament.NumberOfPoints DESC, GoalDifference DESC;
 
+CREATE INDEX idx_gametypename ON GameType(Name);
+EXPLAIN ANALYZE
 SELECT Team1.Name || ':' || Team2.Name AS Game
      , CASE 
 	 	  WHEN Team1Score > Team2Score THEN Team1.Name
@@ -112,12 +130,15 @@ SELECT Team1.Name || ':' || Team2.Name AS Game
   JOIN GameType USING (GameTypeId)
  WHERE GameType.Name = 'Final';
 
+EXPLAIN ANALYZE
 SELECT GameType.Name AS Type
      , COUNT(GameId) AS NumberOfGames
   FROM GameType
   LEFT JOIN Game USING (GameTypeId)
  GROUP BY Name;
 
+CREATE INDEX idx_gamedate ON Game(DATE(DateAndStartTime));
+EXPLAIN ANALYZE
 SELECT Team1.Name || ':' || Team2.Name AS Game
      , GameType.Name
 	 , Team1Score || ' : ' || Team2Score AS Score
@@ -127,6 +148,8 @@ SELECT Team1.Name || ':' || Team2.Name AS Game
   JOIN GameType USING (GameTypeId)
  WHERE DATE(DateAndStartTime) = '2005-01-15';
 
+CREATE INDEX idx_tournamentname ON Tournament(Name);
+EXPLAIN ANALYZE
 SELECT Player.Name || ' ' || Player.Surname AS Player
      , COUNT(GameEventId) AS NumberOfGoals
 	 , Team.Name AS Team
@@ -142,6 +165,8 @@ SELECT Player.Name || ' ' || Player.Surname AS Player
  GROUP BY PlayerId, Player.Name, Player.Surname, Team.Name
  ORDER BY NumberOfGoals DESC;
 
+CREATE INDEX idx_teamid ON TeamAtTournament(TeamId);
+EXPLAIN ANALYZE
 SELECT Tournament.Name
      , Year
      , FinalPosition
@@ -149,6 +174,8 @@ SELECT Tournament.Name
   JOIN Tournament USING (TournamentId)
  WHERE TeamAtTournament.TeamId = 420;
 
+CREATE INDEX idx_tournamentid ON TeamAtTournament(TournamentId);
+EXPLAIN ANALYZE
 SELECT Team.Name AS Name
      , TeamAtTournament.NumberOfPoints
   FROM TeamAtTournament
@@ -158,6 +185,7 @@ SELECT Team.Name AS Name
  ORDER BY NumberOfPoints DESC
  LIMIT 1;
 
+EXPLAIN ANALYZE
 SELECT Tournament.Name AS Name
      , COUNT (DISTINCT TeamAtTournament.TeamId) AS NumberOfTeams
 	 , COUNT (DISTINCT PlayerId) AS NumberOfPlayers
@@ -167,7 +195,7 @@ SELECT Tournament.Name AS Name
   JOIN Player USING (TeamId)
  GROUP BY TournamentId, Tournament.Name;
 
-
+EXPLAIN ANALYZE
 SELECT Team.Name AS TeamName
      , Player.Name || ' ' || Player.Surname AS Player
 	 , COUNT(GameEventId) AS Goals
@@ -189,6 +217,8 @@ HAVING COUNT(GameEventId) = (
 	) AS TeamGoals
 );
 
+CREATE INDEX idx_refereeid ON Game(RefereeId);
+EXPLAIN ANALYZE
 SELECT Team1.Name || ':' || Team2.Name AS Game
 	 , Team1Score || ' : ' || Team2Score AS Score
   FROM Game
